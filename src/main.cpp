@@ -34,6 +34,17 @@ int main()
     exit(EXIT_FAILURE);
   }
 
+  // ==========================================================================
+  // ACTIVATE CONTEXT
+  // Define the created context as the active context.
+  // ==========================================================================
+  if (alcMakeContextCurrent(ctx) == ALC_FALSE) {
+    printf("alcMakeContextCurrent failed: Unable to set active context.\n");
+    alcDestroyContext(ctx);
+    alcCloseDevice(device);
+    exit(EXIT_FAILURE);
+  }
+
   alcDestroyContext(ctx);
   alcCloseDevice(device);
   return 0;
