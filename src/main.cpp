@@ -77,5 +77,5 @@ int main()
   alcMakeContextCurrent(nullptr);
   alcDestroyContext(ctx);
   alcCloseDevice(device);
-  return 0;
+  return EXIT_SUCCESS;
 }
