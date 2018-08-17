@@ -112,7 +112,7 @@ int main()
   // DEFINE BUFFER DATA
   // Copy data from the sound data container into the AL buffer.
   // ==========================================================================
-  auto format = AL_FORMAT_MONO8;
+  auto format = AL_FORMAT_MONO8; // TODO
   auto frequency = file.fmt.sampleRate;
   auto dataSize = file.data.data.size();
   alBufferData(buffer, format, file.data.data.data(), dataSize, frequency);
