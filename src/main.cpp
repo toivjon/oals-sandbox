@@ -114,7 +114,6 @@ int main()
   auto format = AL_FORMAT_MONO8; // TODO
   auto frequency = file.fmt.sampleRate;
   auto dataSize = file.data.data.size();
-  printf("dataSize: %d\n", static_cast<int>(dataSize));
   alBufferData(buffer, format, file.data.data.data(), dataSize, frequency);
   if (hasAlError()) {
     printf("alBufferData failed: Unable to set buffer data.\n");
