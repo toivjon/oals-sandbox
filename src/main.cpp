@@ -14,7 +14,6 @@
 
 #include <AL/al.h>
 #include <AL/alc.h>
-#include <AL/alext.h>
 
 #include "wave.h"
 
@@ -115,6 +114,7 @@ int main()
   auto format = AL_FORMAT_MONO8; // TODO
   auto frequency = file.fmt.sampleRate;
   auto dataSize = file.data.data.size();
+  printf("dataSize: %d\n", static_cast<int>(dataSize));
   alBufferData(buffer, format, file.data.data.data(), dataSize, frequency);
   if (hasAlError()) {
     printf("alBufferData failed: Unable to set buffer data.\n");
@@ -150,6 +150,29 @@ int main()
     alcMakeContextCurrent(nullptr);
     alcDestroyContext(ctx);
     alcCloseDevice(device);
+  }
+
+  // ==========================================================================
+  // PLAY THE SOUND
+  // Here we actually start to play the sound.
+  // ==========================================================================
+  alSourcePlay(source);
+  printf("Playing sound test.wav\n");
+  if (hasAlError()) {
+    printf("alSourcePlay failed: Unable to play the specified source.\n");
+    alDeleteSources(1, &source);
+    alDeleteBuffers(1, &buffer);
+    alcMakeContextCurrent(nullptr);
+    alcDestroyContext(ctx);
+    alcCloseDevice(device);
+  }
+
+  // ==========================================================================
+  ALint sourceState;
+  alGetSourcei(source, AL_SOURCE_STATE, &sourceState);
+  while (sourceState == AL_PLAYING) {
+    // ... wait until the source has stopped playing ...
+    alGetSourcei(source, AL_SOURCE_STATE, &sourceState);
   }
 
   alDeleteSources(1, &source);

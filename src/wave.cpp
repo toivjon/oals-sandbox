@@ -23,7 +23,7 @@ WaveFile wave_load(const std::string& filename)
     file.read((char*)&data.subchunk2Id, sizeof(data.subchunk2Id));
     file.read((char*)&data.subchunk2Size, sizeof(data.subchunk2Size));
     data.data.resize(data.subchunk2Size);
-    file.read((char*)data.data.data(), sizeof(data.subchunk2Size));
+    file.read((char*)data.data.data(), data.subchunk2Size);
 
     // construct the parsed wave file content wrapper.
     return { riff, fmt, data };
