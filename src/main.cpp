@@ -39,9 +39,10 @@
 
 // ============================================================================
 
-static ALCdevice*  sDevice  = nullptr;
-static ALCcontext* sContext = nullptr;
-static ALuint      sSource  = 0;
+static ALCdevice*     sDevice  = nullptr;
+static ALCcontext*    sContext = nullptr;
+static ALuint         sSource  = 0;
+static OggVorbis_File sFile;
 
 // ============================================================================
 // A helper function to check whether there's been an error with the AL queue.
@@ -167,8 +168,7 @@ int main()
   //   2. ov_open.............Opens with the given file handle. [NON-WINDOWS!]
   //   3. ov_open_callbacks...Opens with custom manipulation routines.
   // ==========================================================================
-  OggVorbis_File ovFile;
-  auto result = ov_fopen("test.ogg", &ovFile);
+  auto result = ov_fopen("test.ogg", &sFile);
   if (result != 0) {
     printf("ov_fopen failed: Failed to open test.ogg file.\n");
     alDeleteBuffers(1, &buffer);
@@ -187,7 +187,7 @@ int main()
   auto eof = 0;
   auto currentSection = 0;
   while (!eof) {
-    auto ret = ov_read(&ovFile, ovBuffer, sizeof(ovBuffer),0, 2, 1, &currentSection);
+    auto ret = ov_read(&sFile, ovBuffer, sizeof(ovBuffer),0, 2, 1, &currentSection);
     if (ret == 0) {
       eof = 1;
     } else if (ret < 0) {
@@ -204,9 +204,9 @@ int main()
   // Copy data from the sound data container into the AL buffer.
   // ==========================================================================
   auto format = AL_FORMAT_MONO16; // TODO
-  auto frequency = ovFile.vi->rate;
+  auto frequency = sFile.vi->rate;
   auto dataSize = oggBuffer.size();
-  ov_clear(&ovFile);
+  ov_clear(&sFile);
   alBufferData(buffer, format, oggBuffer.data(), dataSize, frequency);
   if (hasAlError()) {
     printf("alBufferData failed: Unable to set buffer data.\n");
