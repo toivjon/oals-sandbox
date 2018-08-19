@@ -1,2 +1,8 @@
 # ignore Visual Studio Code settings folder.
 .vscode
+
+# ignore OGG files.
+.ogg
+
+# ignore WAV files.
+.wav
