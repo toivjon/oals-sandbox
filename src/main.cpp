@@ -15,6 +15,8 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 
+#include <vorbis/vorbisfile.h>
+
 #include "wave.h"
 
 // ============================================================================
@@ -97,10 +99,20 @@ int main()
   // ==========================================================================
   // LOAD SOUND DATA
   // Load the actual sound data from any sound data source.
+  //
+  // Here we use Vorbis data from a OGG container as the sound source. The main
+  // thing in here is the OggVorbis_File structure which contains the basic
+  // file information (pointer to physical file/bitstream and info about that).
+  //
+  // OggVorbis_File:s can be opened in three different ways:
+  //   1. ov_fopen............Opens the specified file with default values.
+  //   2. ov_open.............Opens with the given file handle. [NON-WINDOWS!]
+  //   3. ov_open_callbacks...Opens with custom manipulation routines.
   // ==========================================================================
-  auto file = wave_load("test.wav");
-  if (file.riff.chunkSize == 0) {
-    printf("wave_load failed: Unable to load test.wav file.\n");
+  OggVorbis_File ovFile;
+  auto result = ov_fopen("test.ogg", &ovFile);
+  if (result != 0) {
+    printf("ov_fopen failed: Failed to open test.ogg file.\n");
     alDeleteBuffers(1, &buffer);
     alcMakeContextCurrent(nullptr);
     alcDestroyContext(ctx);
@@ -109,13 +121,35 @@ int main()
   }
 
   // ==========================================================================
+  // GET MEMORY DATA
+  // Get the memory data from the sound file into memory.
+  // ==========================================================================
+  std::vector<char> oggBuffer;
+  char ovBuffer[4096];
+  auto eof = 0;
+  auto currentSection = 0;
+  while (!eof) {
+    auto ret = ov_read(&ovFile, ovBuffer, sizeof(ovBuffer),0, 2, 1, &currentSection);
+    if (ret == 0) {
+      eof = 1;
+    } else if (ret < 0) {
+      // error
+    } else {
+      for (auto i = 0; i < ret; i++) {
+        oggBuffer.push_back(ovBuffer[i]);
+      }
+    }
+  }
+
+  // ==========================================================================
   // DEFINE BUFFER DATA
   // Copy data from the sound data container into the AL buffer.
   // ==========================================================================
-  auto format = AL_FORMAT_MONO8; // TODO
-  auto frequency = file.fmt.sampleRate;
-  auto dataSize = file.data.data.size();
-  alBufferData(buffer, format, file.data.data.data(), dataSize, frequency);
+  auto format = AL_FORMAT_MONO16; // TODO
+  auto frequency = ovFile.vi->rate;
+  auto dataSize = oggBuffer.size();
+  ov_clear(&ovFile);
+  alBufferData(buffer, format, oggBuffer.data(), dataSize, frequency);
   if (hasAlError()) {
     printf("alBufferData failed: Unable to set buffer data.\n");
     alDeleteBuffers(1, &buffer);
