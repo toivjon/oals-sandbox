@@ -105,6 +105,7 @@ int main()
     alcMakeContextCurrent(nullptr);
     alcDestroyContext(ctx);
     alcCloseDevice(device);
+    exit(EXIT_FAILURE);
   }
 
   // ==========================================================================
@@ -121,6 +122,7 @@ int main()
     alcMakeContextCurrent(nullptr);
     alcDestroyContext(ctx);
     alcCloseDevice(device);
+    exit(EXIT_FAILURE);
   }
 
   // ==========================================================================
@@ -135,6 +137,7 @@ int main()
     alcMakeContextCurrent(nullptr);
     alcDestroyContext(ctx);
     alcCloseDevice(device);
+    exit(EXIT_FAILURE);
   }
 
   // ==========================================================================
@@ -149,6 +152,7 @@ int main()
     alcMakeContextCurrent(nullptr);
     alcDestroyContext(ctx);
     alcCloseDevice(device);
+    exit(EXIT_FAILURE);
   }
 
   // ==========================================================================
@@ -164,6 +168,7 @@ int main()
     alcMakeContextCurrent(nullptr);
     alcDestroyContext(ctx);
     alcCloseDevice(device);
+    exit(EXIT_FAILURE);
   }
 
   // ==========================================================================
