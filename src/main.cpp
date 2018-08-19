@@ -7,6 +7,25 @@
 //    AL  --- Core-specific functions.
 //    ALC --- Device-specific functions.
 //
+// A basic workflow for playing a sound in OpenAL Soft:
+//   1. Open an audio device.
+//   2. Create an audio context.
+//   3. Activate the audio context.
+//   4. Create audio source(s).
+//   5. Select to either load or stream the audio data.
+//       load.1. Load the audio data from an external source.
+//       load.2. Assign the data into a audio buffer.
+//       load.3. Assign the audio buffer to a audio source.
+//       load.4. Play the audio source.
+//     stream.1. Load the first block of data from external source.
+//     stream.2. Assign the first block into an audio buffer.
+//     stream.3. Queue the first audio buffer to audio source.
+//     stream.4. Play the audio source.
+//     stream.5. While playing, load the next data from external source.
+//     stream.6. Assign the block into an audio buffer.
+//     stream.7. Queue the audio buffer to audio source.
+//     stream.8. Continue stream.5. to stream.8. until EOF.
+//
 // ============================================================================
 
 #include <cstdio>
