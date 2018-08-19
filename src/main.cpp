@@ -194,7 +194,7 @@ int main()
   // Here we actually start to play the sound.
   // ==========================================================================
   alSourcePlay(source);
-  printf("Playing sound test.wav\n");
+  printf("Playing sound test.ogg\n");
   if (hasAlError()) {
     printf("alSourcePlay failed: Unable to play the specified source.\n");
     alDeleteSources(1, &source);
