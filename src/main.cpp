@@ -47,6 +47,40 @@ static bool hasAlcError(ALCdevice* device)
 }
 
 // ============================================================================
+// A helper function to play the given OGG Vorbis as a simple sound file.
+// ============================================================================
+static void playFile(OggVorbis_File* file)
+{
+  // ...
+}
+
+// ============================================================================
+// A helper function to play the given OGG Vorbis as a continouos stream.
+//
+// OpenAL Soft uses a buffer queueing technique to perform sound streaming. It
+// allows buffers and sources to be generated in a normal way, but source will
+// not be assigned with the alSourcei(...) function but instead with following.
+//
+//   alSourceQueueBuffers(source, n, buffers).....To add buffers to source
+//   alSourceUnqueueBuffers(source, n, buffers)...To remove buffers from source
+//
+// Program can attach buffer(s) to a source by using the alSourceQueueBuffers
+// and then call the alSourcePlay function to start playing the sound. More
+// data can be then added while the source is being player. Played buffers can
+// be removed (and reused!) from the source queue with alSourceUnqueueBuffers.
+//
+// Some important things to remember!
+// # Do not use alSourcei(...) at all when using buffering (streaming).
+// # All buffers attached to a source should have same audio format.
+//
+// @param file The file to be played.
+// ============================================================================
+static void playStream(OggVorbis_File* file)
+{
+  // ...
+}
+
+// ============================================================================
 
 int main()
 {
