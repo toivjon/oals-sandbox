@@ -221,8 +221,7 @@ int main()
   // CREATE SOURCE(S)
   // Create source(s) which are used to control the playback.
   // ==========================================================================
-  ALuint source;
-  alGenSources(1, &source);
+  alGenSources(1, &sSource);
   if (hasAlError()) {
     printf("alBufferalGenSourcesData failed: Unable to create a source.\n");
     alDeleteBuffers(1, &buffer);
@@ -236,10 +235,10 @@ int main()
   // ASSIGN BUFFER TO SOURCE
   // Assign a buffer containing the sound data to a source.
   // ==========================================================================
-  alSourcei(source, AL_BUFFER, buffer);
+  alSourcei(sSource, AL_BUFFER, buffer);
   if (hasAlError()) {
     printf("alBufferalGenSourcesData failed: Unable to create a source.\n");
-    alDeleteSources(1, &source);
+    alDeleteSources(1, &sSource);
     alDeleteBuffers(1, &buffer);
     alcMakeContextCurrent(nullptr);
     alcDestroyContext(sContext);
@@ -251,11 +250,11 @@ int main()
   // PLAY THE SOUND
   // Here we actually start to play the sound.
   // ==========================================================================
-  alSourcePlay(source);
+  alSourcePlay(sSource);
   printf("Playing sound test.ogg\n");
   if (hasAlError()) {
     printf("alSourcePlay failed: Unable to play the specified source.\n");
-    alDeleteSources(1, &source);
+    alDeleteSources(1, &sSource);
     alDeleteBuffers(1, &buffer);
     alcMakeContextCurrent(nullptr);
     alcDestroyContext(sContext);
@@ -265,13 +264,13 @@ int main()
 
   // ==========================================================================
   ALint sourceState;
-  alGetSourcei(source, AL_SOURCE_STATE, &sourceState);
+  alGetSourcei(sSource, AL_SOURCE_STATE, &sourceState);
   while (sourceState == AL_PLAYING) {
     // ... wait until the source has stopped playing ...
-    alGetSourcei(source, AL_SOURCE_STATE, &sourceState);
+    alGetSourcei(sSource, AL_SOURCE_STATE, &sourceState);
   }
 
-  alDeleteSources(1, &source);
+  alDeleteSources(1, &sSource);
   alDeleteBuffers(1, &buffer);
   alcMakeContextCurrent(nullptr);
   alcDestroyContext(sContext);
