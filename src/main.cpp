@@ -30,13 +30,18 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <vector>
 
 #include <AL/al.h>
 #include <AL/alc.h>
 
 #include <vorbis/vorbisfile.h>
 
-#include "wave.h"
+// ============================================================================
+
+static ALCdevice*  sDevice  = nullptr;
+static ALCcontext* sContext = nullptr;
+static ALuint      sSource  = 0;
 
 // ============================================================================
 // A helper function to check whether there's been an error with the AL queue.
@@ -107,8 +112,8 @@ int main()
   // OPEN A DEVICE
   // The first thing to do in OpenAL is to open a device (nullptr = default).
   // ==========================================================================
-  auto device = alcOpenDevice(nullptr);
-  if (device == nullptr || hasAlcError(device)) {
+  sDevice = alcOpenDevice(nullptr);
+  if (sDevice == nullptr || hasAlcError(sDevice)) {
     printf("alcOpenDevice failed: Unable to open device.\n");
     exit(EXIT_FAILURE);
   }
@@ -117,10 +122,10 @@ int main()
   // CREATE A CONTEXT
   // The second thing is to create a context for the sound device.
   // ==========================================================================
-  auto ctx = alcCreateContext(device, nullptr);
-  if (ctx == nullptr || hasAlcError(device)) {
+  sContext = alcCreateContext(sDevice, nullptr);
+  if (sContext == nullptr || hasAlcError(sDevice)) {
     printf("alcCreateContext failed: Unable to create device context.\n");
-    alcCloseDevice(device);
+    alcCloseDevice(sDevice);
     exit(EXIT_FAILURE);
   }
 
@@ -128,10 +133,10 @@ int main()
   // ACTIVATE CONTEXT
   // Define the created context as the active context.
   // ==========================================================================
-  if (alcMakeContextCurrent(ctx) == ALC_FALSE || hasAlcError(device)) {
+  if (alcMakeContextCurrent(sContext) == ALC_FALSE || hasAlcError(sDevice)) {
     printf("alcMakeContextCurrent failed: Unable to set active context.\n");
-    alcDestroyContext(ctx);
-    alcCloseDevice(device);
+    alcDestroyContext(sContext);
+    alcCloseDevice(sDevice);
     exit(EXIT_FAILURE);
   }
 
@@ -144,8 +149,8 @@ int main()
   if (hasAlError()) {
     printf("alGenBuffers failed: Unable to set active context.\n");
     alcMakeContextCurrent(nullptr);
-    alcDestroyContext(ctx);
-    alcCloseDevice(device);
+    alcDestroyContext(sContext);
+    alcCloseDevice(sDevice);
     exit(EXIT_FAILURE);
   }
 
@@ -168,8 +173,8 @@ int main()
     printf("ov_fopen failed: Failed to open test.ogg file.\n");
     alDeleteBuffers(1, &buffer);
     alcMakeContextCurrent(nullptr);
-    alcDestroyContext(ctx);
-    alcCloseDevice(device);
+    alcDestroyContext(sContext);
+    alcCloseDevice(sDevice);
     exit(EXIT_FAILURE);
   }
 
@@ -207,8 +212,8 @@ int main()
     printf("alBufferData failed: Unable to set buffer data.\n");
     alDeleteBuffers(1, &buffer);
     alcMakeContextCurrent(nullptr);
-    alcDestroyContext(ctx);
-    alcCloseDevice(device);
+    alcDestroyContext(sContext);
+    alcCloseDevice(sDevice);
     exit(EXIT_FAILURE);
   }
 
@@ -222,8 +227,8 @@ int main()
     printf("alBufferalGenSourcesData failed: Unable to create a source.\n");
     alDeleteBuffers(1, &buffer);
     alcMakeContextCurrent(nullptr);
-    alcDestroyContext(ctx);
-    alcCloseDevice(device);
+    alcDestroyContext(sContext);
+    alcCloseDevice(sDevice);
     exit(EXIT_FAILURE);
   }
 
@@ -237,8 +242,8 @@ int main()
     alDeleteSources(1, &source);
     alDeleteBuffers(1, &buffer);
     alcMakeContextCurrent(nullptr);
-    alcDestroyContext(ctx);
-    alcCloseDevice(device);
+    alcDestroyContext(sContext);
+    alcCloseDevice(sDevice);
     exit(EXIT_FAILURE);
   }
 
@@ -253,8 +258,8 @@ int main()
     alDeleteSources(1, &source);
     alDeleteBuffers(1, &buffer);
     alcMakeContextCurrent(nullptr);
-    alcDestroyContext(ctx);
-    alcCloseDevice(device);
+    alcDestroyContext(sContext);
+    alcCloseDevice(sDevice);
     exit(EXIT_FAILURE);
   }
 
@@ -269,7 +274,7 @@ int main()
   alDeleteSources(1, &source);
   alDeleteBuffers(1, &buffer);
   alcMakeContextCurrent(nullptr);
-  alcDestroyContext(ctx);
-  alcCloseDevice(device);
+  alcDestroyContext(sContext);
+  alcCloseDevice(sDevice);
   return EXIT_SUCCESS;
 }
