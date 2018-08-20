@@ -37,12 +37,15 @@
 
 #include <vorbis/vorbisfile.h>
 
+#define NUM_BUFFERS 1
+
 // ============================================================================
 
 static ALCdevice*     sDevice  = nullptr;
 static ALCcontext*    sContext = nullptr;
 static ALuint         sSource  = 0;
 static OggVorbis_File sFile    = {};
+static ALuint         sBuffers[NUM_BUFFERS];
 
 // ============================================================================
 // A helper function to check whether there's been an error with the AL queue.
@@ -106,9 +109,26 @@ static void playStream(OggVorbis_File* file)
 }
 
 // ============================================================================
+static void cleanup()
+{
+  if (sDevice != nullptr) {
+    if (sContext != nullptr) {
+      ov_clear(&sFile);
+      alDeleteSources(1, &sSource);
+      alDeleteBuffers(NUM_BUFFERS, &sBuffers[0]);
+      alcMakeContextCurrent(nullptr);
+      alcDestroyContext(sContext);
+    }
+    alcCloseDevice(sDevice);
+  }
+}
+
+// ============================================================================
 
 int main()
 {
+  atexit(cleanup);
+
   // ==========================================================================
   // OPEN A DEVICE
   // The first thing to do in OpenAL is to open a device (nullptr = default).
@@ -126,7 +146,6 @@ int main()
   sContext = alcCreateContext(sDevice, nullptr);
   if (sContext == nullptr || hasAlcError(sDevice)) {
     printf("alcCreateContext failed: Unable to create device context.\n");
-    alcCloseDevice(sDevice);
     exit(EXIT_FAILURE);
   }
 
@@ -136,8 +155,6 @@ int main()
   // ==========================================================================
   if (alcMakeContextCurrent(sContext) == ALC_FALSE || hasAlcError(sDevice)) {
     printf("alcMakeContextCurrent failed: Unable to set active context.\n");
-    alcDestroyContext(sContext);
-    alcCloseDevice(sDevice);
     exit(EXIT_FAILURE);
   }
 
@@ -148,9 +165,6 @@ int main()
   alGenSources(1, &sSource);
   if (hasAlError()) {
     printf("alBufferalGenSourcesData failed: Unable to create a source.\n");
-    alcMakeContextCurrent(nullptr);
-    alcDestroyContext(sContext);
-    alcCloseDevice(sDevice);
     exit(EXIT_FAILURE);
   }
 
@@ -170,10 +184,6 @@ int main()
   auto result = ov_fopen("test.ogg", &sFile);
   if (result != 0) {
     printf("ov_fopen failed: Failed to open test.ogg file.\n");
-    alDeleteSources(1, &sSource);
-    alcMakeContextCurrent(nullptr);
-    alcDestroyContext(sContext);
-    alcCloseDevice(sDevice);
     exit(EXIT_FAILURE);
   }
 
@@ -181,15 +191,9 @@ int main()
   // CREATE BUFFER(S)
   // Create AL buffer(s) to store audio data for the playback.
   // ==========================================================================
-  ALuint buffer;
-  alGenBuffers(1, &buffer);
+  alGenBuffers(NUM_BUFFERS, &sBuffers[0]);
   if (hasAlError()) {
     printf("alGenBuffers failed: Unable to set active context.\n");
-    ov_clear(&sFile);
-    alDeleteSources(1, &sSource);
-    alcMakeContextCurrent(nullptr);
-    alcDestroyContext(sContext);
-    alcCloseDevice(sDevice);
     exit(EXIT_FAILURE);
   }
 
@@ -222,14 +226,9 @@ int main()
   auto frequency = sFile.vi->rate;
   auto dataSize = oggBuffer.size();
   ov_clear(&sFile);
-  alBufferData(buffer, format, oggBuffer.data(), dataSize, frequency);
+  alBufferData(sBuffers[0], format, oggBuffer.data(), dataSize, frequency);
   if (hasAlError()) {
     printf("alBufferData failed: Unable to set buffer data.\n");
-    alDeleteSources(1, &sSource);
-    alDeleteBuffers(1, &buffer);
-    alcMakeContextCurrent(nullptr);
-    alcDestroyContext(sContext);
-    alcCloseDevice(sDevice);
     exit(EXIT_FAILURE);
   }
 
@@ -237,14 +236,9 @@ int main()
   // ASSIGN BUFFER TO SOURCE
   // Assign a buffer containing the sound data to a source.
   // ==========================================================================
-  alSourcei(sSource, AL_BUFFER, buffer);
+  alSourcei(sSource, AL_BUFFER, sBuffers[0]);
   if (hasAlError()) {
     printf("alBufferalGenSourcesData failed: Unable to create a source.\n");
-    alDeleteSources(1, &sSource);
-    alDeleteBuffers(1, &buffer);
-    alcMakeContextCurrent(nullptr);
-    alcDestroyContext(sContext);
-    alcCloseDevice(sDevice);
     exit(EXIT_FAILURE);
   }
 
@@ -256,11 +250,6 @@ int main()
   printf("Playing sound test.ogg\n");
   if (hasAlError()) {
     printf("alSourcePlay failed: Unable to play the specified source.\n");
-    alDeleteSources(1, &sSource);
-    alDeleteBuffers(1, &buffer);
-    alcMakeContextCurrent(nullptr);
-    alcDestroyContext(sContext);
-    alcCloseDevice(sDevice);
     exit(EXIT_FAILURE);
   }
 
@@ -272,10 +261,5 @@ int main()
     alGetSourcei(sSource, AL_SOURCE_STATE, &sourceState);
   }
 
-  alDeleteSources(1, &sSource);
-  alDeleteBuffers(1, &buffer);
-  alcMakeContextCurrent(nullptr);
-  alcDestroyContext(sContext);
-  alcCloseDevice(sDevice);
   return EXIT_SUCCESS;
 }
