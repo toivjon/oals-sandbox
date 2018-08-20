@@ -79,7 +79,69 @@ static bool hasAlcError(ALCdevice* device)
 // ============================================================================
 static void playFile()
 {
-  // ...
+  // ==========================================================================
+  // GET MEMORY DATA
+  // Get the memory data from the sound file into memory.
+  // ==========================================================================
+  std::vector<char> oggBuffer;
+  char ovBuffer[4096];
+  auto eof = 0;
+  auto currentSection = 0;
+  while (!eof) {
+    auto ret = ov_read(&sFile, ovBuffer, sizeof(ovBuffer),0, 2, 1, &currentSection);
+    if (ret == 0) {
+      eof = 1;
+    } else if (ret < 0) {
+      // error
+    } else {
+      for (auto i = 0; i < ret; i++) {
+        oggBuffer.push_back(ovBuffer[i]);
+      }
+    }
+  }
+
+  // ==========================================================================
+  // DEFINE BUFFER DATA
+  // Copy data from the sound data container into the AL buffer.
+  // ==========================================================================
+  auto format = AL_FORMAT_MONO16; // TODO
+  auto frequency = sFile.vi->rate;
+  auto dataSize = oggBuffer.size();
+  ov_clear(&sFile);
+  alBufferData(sBuffers[0], format, oggBuffer.data(), dataSize, frequency);
+  if (hasAlError()) {
+    printf("alBufferData failed: Unable to set buffer data.\n");
+    exit(EXIT_FAILURE);
+  }
+
+  // ==========================================================================
+  // ASSIGN BUFFER TO SOURCE
+  // Assign a buffer containing the sound data to a source.
+  // ==========================================================================
+  alSourcei(sSource, AL_BUFFER, sBuffers[0]);
+  if (hasAlError()) {
+    printf("alBufferalGenSourcesData failed: Unable to create a source.\n");
+    exit(EXIT_FAILURE);
+  }
+
+  // ==========================================================================
+  // PLAY THE SOUND
+  // Here we actually start to play the sound.
+  // ==========================================================================
+  alSourcePlay(sSource);
+  printf("Playing sound test.ogg\n");
+  if (hasAlError()) {
+    printf("alSourcePlay failed: Unable to play the specified source.\n");
+    exit(EXIT_FAILURE);
+  }
+
+  // ==========================================================================
+  ALint sourceState;
+  alGetSourcei(sSource, AL_SOURCE_STATE, &sourceState);
+  while (sourceState == AL_PLAYING) {
+    // ... wait until the source has stopped playing ...
+    alGetSourcei(sSource, AL_SOURCE_STATE, &sourceState);
+  }
 }
 
 // ============================================================================
@@ -100,8 +162,6 @@ static void playFile()
 // Some important things to remember!
 // # Do not use alSourcei(...) at all when using buffering (streaming).
 // # All buffers attached to a source should have same audio format.
-//
-// @param file The file to be played.
 // ============================================================================
 static void playStream()
 {
@@ -197,69 +257,7 @@ int main()
     exit(EXIT_FAILURE);
   }
 
-  // ==========================================================================
-  // GET MEMORY DATA
-  // Get the memory data from the sound file into memory.
-  // ==========================================================================
-  std::vector<char> oggBuffer;
-  char ovBuffer[4096];
-  auto eof = 0;
-  auto currentSection = 0;
-  while (!eof) {
-    auto ret = ov_read(&sFile, ovBuffer, sizeof(ovBuffer),0, 2, 1, &currentSection);
-    if (ret == 0) {
-      eof = 1;
-    } else if (ret < 0) {
-      // error
-    } else {
-      for (auto i = 0; i < ret; i++) {
-        oggBuffer.push_back(ovBuffer[i]);
-      }
-    }
-  }
-
-  // ==========================================================================
-  // DEFINE BUFFER DATA
-  // Copy data from the sound data container into the AL buffer.
-  // ==========================================================================
-  auto format = AL_FORMAT_MONO16; // TODO
-  auto frequency = sFile.vi->rate;
-  auto dataSize = oggBuffer.size();
-  ov_clear(&sFile);
-  alBufferData(sBuffers[0], format, oggBuffer.data(), dataSize, frequency);
-  if (hasAlError()) {
-    printf("alBufferData failed: Unable to set buffer data.\n");
-    exit(EXIT_FAILURE);
-  }
-
-  // ==========================================================================
-  // ASSIGN BUFFER TO SOURCE
-  // Assign a buffer containing the sound data to a source.
-  // ==========================================================================
-  alSourcei(sSource, AL_BUFFER, sBuffers[0]);
-  if (hasAlError()) {
-    printf("alBufferalGenSourcesData failed: Unable to create a source.\n");
-    exit(EXIT_FAILURE);
-  }
-
-  // ==========================================================================
-  // PLAY THE SOUND
-  // Here we actually start to play the sound.
-  // ==========================================================================
-  alSourcePlay(sSource);
-  printf("Playing sound test.ogg\n");
-  if (hasAlError()) {
-    printf("alSourcePlay failed: Unable to play the specified source.\n");
-    exit(EXIT_FAILURE);
-  }
-
-  // ==========================================================================
-  ALint sourceState;
-  alGetSourcei(sSource, AL_SOURCE_STATE, &sourceState);
-  while (sourceState == AL_PLAYING) {
-    // ... wait until the source has stopped playing ...
-    alGetSourcei(sSource, AL_SOURCE_STATE, &sourceState);
-  }
+  playFile();
 
   return EXIT_SUCCESS;
 }
