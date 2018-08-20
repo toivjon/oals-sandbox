@@ -142,6 +142,19 @@ int main()
   }
 
   // ==========================================================================
+  // CREATE SOURCE(S)
+  // Create source(s) which are used to control the playback.
+  // ==========================================================================
+  alGenSources(1, &sSource);
+  if (hasAlError()) {
+    printf("alBufferalGenSourcesData failed: Unable to create a source.\n");
+    alcMakeContextCurrent(nullptr);
+    alcDestroyContext(sContext);
+    alcCloseDevice(sDevice);
+    exit(EXIT_FAILURE);
+  }
+
+  // ==========================================================================
   // CREATE BUFFER(S)
   // Create AL buffer(s) to store audio data for the playback.
   // ==========================================================================
@@ -149,6 +162,7 @@ int main()
   alGenBuffers(1, &buffer);
   if (hasAlError()) {
     printf("alGenBuffers failed: Unable to set active context.\n");
+    alDeleteSources(1, &sSource);
     alcMakeContextCurrent(nullptr);
     alcDestroyContext(sContext);
     alcCloseDevice(sDevice);
@@ -171,6 +185,7 @@ int main()
   auto result = ov_fopen("test.ogg", &sFile);
   if (result != 0) {
     printf("ov_fopen failed: Failed to open test.ogg file.\n");
+    alDeleteSources(1, &sSource);
     alDeleteBuffers(1, &buffer);
     alcMakeContextCurrent(nullptr);
     alcDestroyContext(sContext);
@@ -210,20 +225,7 @@ int main()
   alBufferData(buffer, format, oggBuffer.data(), dataSize, frequency);
   if (hasAlError()) {
     printf("alBufferData failed: Unable to set buffer data.\n");
-    alDeleteBuffers(1, &buffer);
-    alcMakeContextCurrent(nullptr);
-    alcDestroyContext(sContext);
-    alcCloseDevice(sDevice);
-    exit(EXIT_FAILURE);
-  }
-
-  // ==========================================================================
-  // CREATE SOURCE(S)
-  // Create source(s) which are used to control the playback.
-  // ==========================================================================
-  alGenSources(1, &sSource);
-  if (hasAlError()) {
-    printf("alBufferalGenSourcesData failed: Unable to create a source.\n");
+    alDeleteSources(1, &sSource);
     alDeleteBuffers(1, &buffer);
     alcMakeContextCurrent(nullptr);
     alcDestroyContext(sContext);
