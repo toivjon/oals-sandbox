@@ -37,7 +37,13 @@
 
 #include <vorbis/vorbisfile.h>
 
+#define STREAM 1
+
+#if STREAM == 1
+#define NUM_BUFFERS 4
+#else
 #define NUM_BUFFERS 1
+#endif
 
 // ============================================================================
 
@@ -257,7 +263,11 @@ int main()
     exit(EXIT_FAILURE);
   }
 
-  playFile();
+  #if STREAM == 1
+    playStream();
+  #else
+    playFile();
+  #endif
 
   return EXIT_SUCCESS;
 }
