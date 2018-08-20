@@ -155,21 +155,6 @@ int main()
   }
 
   // ==========================================================================
-  // CREATE BUFFER(S)
-  // Create AL buffer(s) to store audio data for the playback.
-  // ==========================================================================
-  ALuint buffer;
-  alGenBuffers(1, &buffer);
-  if (hasAlError()) {
-    printf("alGenBuffers failed: Unable to set active context.\n");
-    alDeleteSources(1, &sSource);
-    alcMakeContextCurrent(nullptr);
-    alcDestroyContext(sContext);
-    alcCloseDevice(sDevice);
-    exit(EXIT_FAILURE);
-  }
-
-  // ==========================================================================
   // LOAD SOUND DATA
   // Load the actual sound data from any sound data source.
   //
@@ -186,7 +171,22 @@ int main()
   if (result != 0) {
     printf("ov_fopen failed: Failed to open test.ogg file.\n");
     alDeleteSources(1, &sSource);
-    alDeleteBuffers(1, &buffer);
+    alcMakeContextCurrent(nullptr);
+    alcDestroyContext(sContext);
+    alcCloseDevice(sDevice);
+    exit(EXIT_FAILURE);
+  }
+
+  // ==========================================================================
+  // CREATE BUFFER(S)
+  // Create AL buffer(s) to store audio data for the playback.
+  // ==========================================================================
+  ALuint buffer;
+  alGenBuffers(1, &buffer);
+  if (hasAlError()) {
+    printf("alGenBuffers failed: Unable to set active context.\n");
+    ov_clear(&sFile);
+    alDeleteSources(1, &sSource);
     alcMakeContextCurrent(nullptr);
     alcDestroyContext(sContext);
     alcCloseDevice(sDevice);
