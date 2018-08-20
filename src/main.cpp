@@ -77,7 +77,7 @@ static bool hasAlcError(ALCdevice* device)
 // ============================================================================
 // A helper function to play the given OGG Vorbis as a simple sound file.
 // ============================================================================
-static void playFile(OggVorbis_File* file)
+static void playFile()
 {
   // ...
 }
@@ -103,7 +103,7 @@ static void playFile(OggVorbis_File* file)
 //
 // @param file The file to be played.
 // ============================================================================
-static void playStream(OggVorbis_File* file)
+static void playStream()
 {
   // ...
 }
