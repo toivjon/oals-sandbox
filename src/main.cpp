@@ -42,7 +42,7 @@
 static ALCdevice*     sDevice  = nullptr;
 static ALCcontext*    sContext = nullptr;
 static ALuint         sSource  = 0;
-static OggVorbis_File sFile;
+static OggVorbis_File sFile    = {};
 
 // ============================================================================
 // A helper function to check whether there's been an error with the AL queue.
