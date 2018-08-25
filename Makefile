@@ -8,7 +8,7 @@ CXXFLAGS = -std=c++11 -Isrc -IC:/Workspace/api/vorbis-1.3.6/include -IC:/Workspa
 LDFLAGS = -LC:/Workspace/api/ogg-1.3.3/lib64 -LC:/Workspace/api/vorbis-1.3.6/lib64 -LC:/Workspace/api/openal-soft-1.18.2/lib64 -lopenal32 -logg.dll -lvorbis.dll -lvorbisfile.dll
 
 # the path to source files.
-SRC_PATH = src
+SRC_PATH = .
 
 # the path to build files and executable.
 BUILD_PATH = build
