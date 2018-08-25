@@ -44,10 +44,8 @@
 
 #if STREAM == 1
 #define NUM_BUFFERS 4
-#define BUFFER_TIME 200
 #else
 #define NUM_BUFFERS 1
-#define BUFFER_TIME 0
 #endif
 
 // ============================================================================
